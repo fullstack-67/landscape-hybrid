@@ -24,3 +24,8 @@ export async function createTodos(todoText: string) {
 export async function deleteTodo(id: string) {
   todos = todos.filter((el) => el.id !== id);
 }
+
+export async function searchTodo(id: string) {
+  const todo = todos.find((el) => el.id === id);
+  return todo;
+}
