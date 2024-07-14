@@ -1,5 +1,5 @@
-import { revalidatePath } from "next/cache";
 // import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { FC } from "react";
 import { deleteTodo, type Todo } from "@/app/db";
 

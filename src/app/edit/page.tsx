@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { searchTodo } from "../db";
 import { FormInput } from "@/Components/FormInput";
 
 interface PageProps {
@@ -10,6 +8,7 @@ interface PageProps {
 export default function EditTodo({ searchParams }: PageProps) {
   const curId = (searchParams?.curId ?? "") as string;
   const message = (searchParams?.message ?? "") as string;
+
   return (
     <main className="container">
       <h1>Edit Todo</h1>

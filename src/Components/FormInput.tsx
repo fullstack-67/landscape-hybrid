@@ -26,6 +26,7 @@ export const FormInput: FC<{
 
     const curId = formData.get("curId") as string;
     const todoTextUpdated = formData.get("todo-text") as string;
+
     try {
       await updateTodo(curId, todoTextUpdated);
     } catch (err) {
