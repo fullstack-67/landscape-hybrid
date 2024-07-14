@@ -29,3 +29,5 @@ export async function searchTodo(id: string) {
   const todo = todos.find((el) => el.id === id);
   return todo;
 }
+
+export type Todo = Awaited<ReturnType<typeof getTodos>>[0];
