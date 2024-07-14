@@ -20,7 +20,7 @@ export default async function Home({ params, searchParams }: PageProps) {
         <Link href={"/"}>Todos</Link>
       </h1>
 
-      <FormInput message={message} />
+      <FormInput message={message} mode="EDIT" />
       <TodoList todos={todos} />
     </main>
   );

@@ -8,20 +8,11 @@ interface PageProps {
 }
 
 export default function EditTodo({ searchParams }: PageProps) {
-  async function actionUpdateTodo(formData: FormData) {
-    "use server";
-    const id = formData.get("id") as string;
-    const action = formData.get("action");
-
-    const todo = await searchTodo(id);
-    redirect(`?todoText=${todo?.todoText}&mode=EDIT&action=${action}`);
-  }
-
   const id = (searchParams?.id ?? "") as string;
 
   return (
     <>
-      <FormInput message={""} />
+      <FormInput message={""} mode={"EDIT"} />
     </>
   );
 }
