@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import { getTodos, createTodos, deleteTodo, searchTodo } from "./db";
-import Link from "next/link";
+// import Link from "next/link";
 import { FormInput } from "@/Components/FormInput";
 import { TodoList } from "@/Components/TodoList";
 
@@ -16,11 +15,9 @@ export default async function Home({ params, searchParams }: PageProps) {
 
   return (
     <main className="container">
-      <h1>
-        <Link href={"/"}>Todos</Link>
-      </h1>
+      <h1>Todo</h1>
 
-      <FormInput message={message} mode="EDIT" />
+      <FormInput message={message} mode="ADD" />
       <TodoList todos={todos} />
     </main>
   );

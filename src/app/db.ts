@@ -30,4 +30,14 @@ export async function searchTodo(id: string) {
   return todo;
 }
 
+export async function updateTodo(id: string, todoTextUpdated: string) {
+  if (!todoTextUpdated) return Promise.reject("Empty Text");
+  const idx = todos.findIndex((el) => el.id === id);
+  if (idx > -1) {
+    todos[idx].todoText = todoTextUpdated;
+  } else {
+    return Promise.reject("Invalid Todo ID");
+  }
+}
+
 export type Todo = Awaited<ReturnType<typeof getTodos>>[0];

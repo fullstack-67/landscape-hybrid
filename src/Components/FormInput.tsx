@@ -1,11 +1,11 @@
 // import { revalidatePath } from "next/cache";
 import { FC } from "react";
 import { redirect } from "next/navigation";
-import { createTodos, searchTodo } from "@/app/db";
+import { createTodos, searchTodo, updateTodo } from "@/app/db";
 
 export const FormInput: FC<{
-  message: string;
   mode: "ADD" | "EDIT";
+  message?: string;
   curId?: string;
 }> = async ({ message, mode, curId }) => {
   async function actionCeateTodo(formData: FormData) {
@@ -23,7 +23,16 @@ export const FormInput: FC<{
 
   async function actionUpdateTodo(formData: FormData) {
     "use server";
-    // const id = (formData.get("id") ?? "") as string;
+
+    const curId = formData.get("curId") as string;
+    const todoTextUpdated = formData.get("todo-text") as string;
+    try {
+      await updateTodo(curId, todoTextUpdated);
+    } catch (err) {
+      redirect(`/edit/?message=${err ?? "Unknown error"}&curId=${curId}`);
+    }
+
+    redirect("/");
   }
 
   let todoText = "";
@@ -35,14 +44,29 @@ export const FormInput: FC<{
   const actionForm = mode === "ADD" ? actionCeateTodo : actionUpdateTodo;
 
   return (
-    <form action={actionForm}>
-      <fieldset>
-        <label htmlFor="todo-text">Text</label>
-        <input type="text" name="todo-text" defaultValue={todoText} />
-      </fieldset>
-      <button type="submit">{mode === "ADD" ? "Submit" : "Update"}</button>
+    <>
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: "3fr 1fr 1fr", alignItems: "end" }}
+      >
+        <form action={actionForm} style={{ display: "contents" }}>
+          <div>
+            <label htmlFor="todo-text">Text</label>
+            <input type="text" name="todo-text" defaultValue={todoText} />
+          </div>
+          <input type="hidden" name="curId" value={curId ?? ""} />
+          <button type="submit">{mode === "ADD" ? "Submit" : "Update"}</button>
+        </form>
+        {mode === "EDIT" && (
+          <form action="/" style={{ display: "contents" }}>
+            <button type="submit" className="contrast">
+              Cancel
+            </button>
+          </form>
+        )}
+      </div>
 
-      <i className="pico-color-red-300">{message}</i>
-    </form>
+      {<i className="pico-color-red-300">{message ?? ""}</i>}
+    </>
   );
 };

@@ -10,13 +10,15 @@ export const TodoList: FC<{ todos: Todo[] }> = ({ todos }) => {
         <article
           key={todo.id}
           className="grid"
-          style={{ alignItems: "center" }}
+          style={{
+            alignItems: "center",
+            gridTemplateColumns: "1fr 3fr 1fr 1fr",
+          }}
         >
           <span>
             🪪 ({idx + 1})-{todo.id}
           </span>
           <span>✍️ {todo.todoText}</span>
-
           <ButtonDelete todo={todo} />
           <ButtonUpdate todo={todo} />
         </article>
@@ -28,8 +30,8 @@ export const TodoList: FC<{ todos: Todo[] }> = ({ todos }) => {
 const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
   async function actionDeleteTodo(formData: FormData) {
     "use server";
-    // const id = formData.get("id") as string;
-    // await deleteTodo(id);
+    // const curId = formData.get("curId") as string;
+    // await deleteTodo(curId);
 
     // This is better than getting value from FormData
     await deleteTodo(todo.id);
@@ -40,7 +42,7 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
   return (
     <form action={actionDeleteTodo}>
       {/* No need to use this anymore once we can use prop. */}
-      {/* <input type="hidden" value={todo.id} name="id" /> */}
+      {/* <input type="hidden" value={todo.id} name="curId" /> */}
       <button type="submit" className="contrast">
         Delete
       </button>
