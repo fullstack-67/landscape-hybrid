@@ -8,11 +8,12 @@ interface PageProps {
 }
 
 export default function EditTodo({ searchParams }: PageProps) {
-  const id = (searchParams?.id ?? "") as string;
+  const curId = (searchParams?.curId ?? "") as string;
 
   return (
-    <>
-      <FormInput message={""} mode={"EDIT"} />
-    </>
+    <main className="container">
+      <h1>Edit Todo</h1>
+      <FormInput message={""} mode={"EDIT"} curId={curId} />
+    </main>
   );
 }

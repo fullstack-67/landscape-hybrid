@@ -23,27 +23,22 @@ export const FormInput: FC<{
 
   async function actionUpdateTodo(formData: FormData) {
     "use server";
-    const id = (formData.get("id") ?? "") as string;
-    const action = formData.get("action");
+    // const id = (formData.get("id") ?? "") as string;
+  }
 
-    const todo = await searchTodo(id);
-    redirect(`?todoText=${todo?.todoText}&mode=EDIT&action=${action}`);
+  let todoText = "";
+  if (mode === "EDIT" && curId) {
+    const todo = await searchTodo(curId);
+    todoText = todo?.todoText ?? "";
   }
 
   const actionForm = mode === "ADD" ? actionCeateTodo : actionUpdateTodo;
-
-  let todoText = "";
-
-  if (mode === "EDIT" && curId) {
-    const todo = await searchTodo(curId ?? "");
-    todoText = todo?.todoText ?? "";
-  }
 
   return (
     <form action={actionForm}>
       <fieldset>
         <label htmlFor="todo-text">Text</label>
-        <input type="text" name="todo-text" value={todoText} />
+        <input type="text" name="todo-text" defaultValue={todoText} />
       </fieldset>
       <button type="submit">{mode === "ADD" ? "Submit" : "Update"}</button>
 

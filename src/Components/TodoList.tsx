@@ -51,7 +51,7 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
 const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
   return (
     <form action="/edit">
-      <input type="hidden" value={todo.id} name="id" />
+      <input type="hidden" value={todo.id} name="curId" />
       <button type="submit" className="secondary">
         Update
       </button>
