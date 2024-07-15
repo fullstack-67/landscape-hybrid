@@ -12,12 +12,11 @@ export const TodoList: FC<{ todos: Todo[] }> = ({ todos }) => {
           className="grid"
           style={{
             alignItems: "center",
-            gridTemplateColumns: "1fr 3fr 1fr 1fr",
+            gridTemplateColumns: "0.5fr 1fr 4fr 1fr 1fr",
           }}
         >
-          <span>
-            🪪 ({idx + 1})-{todo.id}
-          </span>
+          <span>({idx + 1})</span>
+          <span>🪪 {todo.id}</span>
           <span>✍️ {todo.todoText}</span>
           <ButtonDelete todo={todo} />
           <ButtonUpdate todo={todo} />
@@ -43,8 +42,8 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
     <form action={actionDeleteTodo}>
       {/* No need to use this anymore once we can use prop. */}
       {/* <input type="hidden" value={todo.id} name="curId" /> */}
-      <button type="submit" className="contrast">
-        Delete
+      <button type="submit" className="contrast" style={{ marginBottom: 0 }}>
+        🗑️
       </button>
     </form>
   );
@@ -54,8 +53,8 @@ const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
   return (
     <form action="/edit">
       <input type="hidden" value={todo.id} name="curId" />
-      <button type="submit" className="secondary">
-        Update
+      <button type="submit" className="secondary" style={{ marginBottom: 0 }}>
+        🖊️
       </button>
     </form>
   );

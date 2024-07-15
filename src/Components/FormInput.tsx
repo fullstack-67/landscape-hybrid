@@ -52,8 +52,12 @@ export const FormInput: FC<{
       >
         <form action={actionForm} style={{ display: "contents" }}>
           <div>
-            <label htmlFor="todo-text">Text</label>
-            <input type="text" name="todo-text" defaultValue={todoText} />
+            <input
+              type="text"
+              name="todo-text"
+              defaultValue={todoText}
+              placeholder="Todo Text"
+            />
           </div>
           <input type="hidden" name="curId" value={curId ?? ""} />
           <button type="submit">{mode === "ADD" ? "Submit" : "Update"}</button>
