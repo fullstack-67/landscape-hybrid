@@ -8,7 +8,7 @@ export const FormInput: FC<{
   message?: string;
   curId?: string;
 }> = async ({ message, mode, curId }) => {
-  async function actionCeateTodo(formData: FormData) {
+  async function actionCreateTodo(formData: FormData) {
     "use server";
     const todoText = formData.get("todo-text") as string;
     try {
@@ -42,7 +42,7 @@ export const FormInput: FC<{
     todoText = todo?.todoText ?? "";
   }
 
-  const actionForm = mode === "ADD" ? actionCeateTodo : actionUpdateTodo;
+  const actionForm = mode === "ADD" ? actionCreateTodo : actionUpdateTodo;
 
   return (
     <>
