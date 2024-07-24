@@ -11,12 +11,17 @@ interface PageProps {
 export default async function Home({ params, searchParams }: PageProps) {
   const todos = await getTodos();
   const message = (searchParams?.message ?? "") as string;
+  const curId = (searchParams?.curId ?? "") as string;
+  let mode = (searchParams?.mode ?? "ADD") as "ADD" | "EDIT";
+  if (mode !== "ADD" && mode !== "EDIT") mode = "ADD";
 
   return (
     <main className="container">
-      <h1>Todo</h1>
-      <FormInput message={message} mode="ADD" />
-      <TodoList todos={todos} />
+      <a href="/">
+        <h1>Todo</h1>
+      </a>
+      <FormInput message={message} mode={mode} curId={curId} />
+      <TodoList todos={todos} mode={mode} curId={curId} />
     </main>
   );
 }

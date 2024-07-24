@@ -3,14 +3,16 @@ import { FC } from "react";
 import { redirect } from "next/navigation";
 import { createTodos, searchTodo, updateTodo } from "@/app/db";
 
-export const FormInput: FC<{
+interface Props {
   mode: "ADD" | "EDIT";
   message?: string;
-  curId?: string;
-}> = async ({ message, mode, curId }) => {
+  curId: string;
+}
+
+export const FormInput: FC<Props> = async ({ message, mode, curId }) => {
   async function actionCreateTodo(formData: FormData) {
     "use server";
-    const todoText = formData.get("todo-text") as string;
+    const todoText = formData.get("todoText") as string;
     try {
       await createTodos(todoText);
     } catch (err) {
@@ -23,16 +25,14 @@ export const FormInput: FC<{
 
   async function actionUpdateTodo(formData: FormData) {
     "use server";
-
-    const curId = formData.get("curId") as string;
-    const todoTextUpdated = formData.get("todo-text") as string;
-
+    const todoTextUpdated = formData.get("todoText") as string;
+    // No need for this since I already get curId from component prop. Very nice.
+    // const curId = formData.get("curId") as string;
     try {
       await updateTodo(curId, todoTextUpdated);
     } catch (err) {
-      redirect(`/edit/?message=${err ?? "Unknown error"}&curId=${curId}`);
+      redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
     }
-
     redirect("/");
   }
 
@@ -48,15 +48,18 @@ export const FormInput: FC<{
     <>
       <div
         className="grid"
-        style={{ gridTemplateColumns: "3fr 1fr 1fr", alignItems: "end" }}
+        style={{
+          gridTemplateColumns: mode === "ADD" ? "4fr 1fr" : "4fr 1fr 1fr",
+          alignItems: "end",
+        }}
       >
         <form action={actionForm} style={{ display: "contents" }}>
           <div>
             <input
               type="text"
-              name="todo-text"
+              name="todoText"
               defaultValue={todoText}
-              placeholder="Todo Text"
+              placeholder=""
             />
           </div>
           <input type="hidden" name="curId" value={curId ?? ""} />
