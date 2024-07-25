@@ -1,4 +1,4 @@
-// import { revalidatePath } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { FC } from "react";
 import { redirect } from "next/navigation";
 import { createTodos, searchTodo, updateTodo } from "@/app/db";
@@ -19,8 +19,7 @@ export const FormInput: FC<Props> = async ({ message, mode, curId }) => {
       console.dir(err);
       redirect(`?message=${err ?? "Unknown error"}`);
     }
-    // revalidatePath("/");
-    redirect("/");
+    revalidatePath("/"); // I should revalidate here.  No need to refresh
   }
 
   async function actionUpdateTodo(formData: FormData) {
@@ -33,7 +32,8 @@ export const FormInput: FC<Props> = async ({ message, mode, curId }) => {
     } catch (err) {
       redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
     }
-    redirect("/");
+    // revalidatePath("/");
+    redirect("/"); // Need to redirect because I need to clear the URL.
   }
 
   let todoText = "";
