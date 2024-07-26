@@ -1,8 +1,27 @@
-export default function Home() {
+// import Link from "next/link";
+import { getTodos } from "./db";
+import { FormInput } from "@/Components/FormInput";
+import { TodoList } from "@/Components/TodoList";
+
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Home({ params, searchParams }: PageProps) {
+  const todos = await getTodos();
+  const message = (searchParams?.message ?? "") as string;
+  const curId = (searchParams?.curId ?? "") as string;
+  let mode = (searchParams?.mode ?? "ADD") as "ADD" | "EDIT";
+  if (mode !== "ADD" && mode !== "EDIT") mode = "ADD";
+
   return (
     <main className="container">
-      <h1>Test</h1>
-      <button className="pico-background-purple-300">Click</button>
+      <a href="/">
+        <h1>Todo</h1>
+      </a>
+      <FormInput message={message} mode={mode} curId={curId} />
+      <TodoList todos={todos} mode={mode} curId={curId} />
     </main>
   );
 }
