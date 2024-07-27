@@ -1,7 +1,7 @@
 // import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { FC } from "react";
-import { deleteTodo, type Todo } from "@/app/db";
+import { deleteTodo, type Todo } from "@/app/actionsAndDb";
 
 interface Props {
   todos: Todo[];
