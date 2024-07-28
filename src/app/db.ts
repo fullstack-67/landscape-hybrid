@@ -1,3 +1,5 @@
+const DB_LATENCY = 500; // ms
+
 let todos = [
   {
     id: genId(),
@@ -14,6 +16,7 @@ export async function getTodos() {
 }
 
 export async function createTodos(todoText: string) {
+  await sleep(DB_LATENCY);
   if (!todoText) return Promise.reject("Empty Text");
   todos.push({
     id: genId(),
@@ -31,6 +34,7 @@ export async function searchTodo(id: string) {
 }
 
 export async function updateTodo(id: string, todoTextUpdated: string) {
+  await sleep(DB_LATENCY);
   if (!todoTextUpdated) return Promise.reject("Empty Text");
   const idx = todos.findIndex((el) => el.id === id);
   if (idx > -1) {
@@ -41,3 +45,7 @@ export async function updateTodo(id: string, todoTextUpdated: string) {
 }
 
 export type Todo = Awaited<ReturnType<typeof getTodos>>[0];
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
