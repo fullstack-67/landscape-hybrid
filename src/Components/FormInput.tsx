@@ -1,23 +1,21 @@
 "use client";
 
 import { FC } from "react";
-import {
-  actionUpdateTodo,
-  actionCreateTodo,
-  actionGetCurTodo,
-} from "@/app/actionsAndDb";
+import { actionUpdateTodo, actionCreateTodo } from "@/app/actionsAndDb";
+import { useFormState, useFormStatus } from "react-dom";
+import { useRef, useEffect } from "react";
+import useStore, { ModeType } from "@/utils/store";
 
-interface Props {
-  mode: "ADD" | "EDIT";
-  message?: string;
-  curId: string;
-}
+export const FormInput: FC = () => {
+  const [mode, curTodo] = useStore((state) => [state.mode, state.curTodo]);
+  console.log({ mode });
+  const actionFormOption =
+    mode === "ADD" ? actionCreateTodo : actionUpdateTodo.bind(null, curTodo.id);
 
-export const FormInput: FC<Props> = ({ message, mode, curId }) => {
-  let todoText = "";
-
-  const actionForm =
-    mode === "ADD" ? actionCreateTodo : actionUpdateTodo.bind(null, curId);
+  const [state, actionForm] = useFormState<{ message: string }>(
+    actionFormOption as any,
+    { message: "" }
+  );
 
   return (
     <>
@@ -29,16 +27,8 @@ export const FormInput: FC<Props> = ({ message, mode, curId }) => {
         }}
       >
         <form action={actionForm} style={{ display: "contents" }}>
-          <div>
-            <input
-              type="text"
-              name="todoText"
-              defaultValue={todoText}
-              placeholder=""
-            />
-          </div>
-          <input type="hidden" name="curId" value={curId ?? ""} />
-          <button type="submit">{mode === "ADD" ? "Submit" : "Update"}</button>
+          <FormInputText />
+          <ButtonSubmit mode={mode} message={state.message} />
         </form>
         {mode === "EDIT" && (
           <form action="/" style={{ display: "contents" }}>
@@ -49,7 +39,62 @@ export const FormInput: FC<Props> = ({ message, mode, curId }) => {
         )}
       </div>
 
-      {<i className="pico-color-red-300">{message ?? ""}</i>}
+      {<i className="pico-color-red-300">{state?.message ?? ""}</i>}
     </>
+  );
+};
+
+// I need to use useFormStatus in the component in the form.
+// https://react.dev/reference/react-dom/hooks/useFormStatus
+const FormInputText: FC = () => {
+  const { pending } = useFormStatus();
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!pending && ref?.current) {
+      ref.current.value = "";
+    }
+  }, [pending]);
+
+  const [curTodo] = useStore((state) => [state.curTodo]);
+  useEffect(() => {
+    if (curTodo.todoText) {
+      if (ref?.current) {
+        ref.current.value = curTodo.todoText;
+      }
+    }
+  }, [curTodo.todoText]);
+  return (
+    <input
+      type="text"
+      name="todoText"
+      placeholder=""
+      disabled={pending}
+      ref={ref}
+    />
+  );
+};
+
+const ButtonSubmit: FC<{ mode: ModeType; message: string }> = ({
+  mode,
+  message,
+}) => {
+  const { pending } = useFormStatus();
+  const [setMode, setCurTodo] = useStore((state) => [
+    state.setMode,
+    state.setCurTodo,
+  ]);
+  useEffect(() => {
+    // If there is error message, do not change the mode yet.
+    if (message) return;
+    if (!pending && mode === "EDIT") {
+      setMode("ADD");
+      setCurTodo({ id: "", todoText: "" });
+    }
+  }, [pending]);
+
+  return (
+    <button type="submit" disabled={pending}>
+      {mode === "ADD" ? "Submit" : "Update"}
+    </button>
   );
 };

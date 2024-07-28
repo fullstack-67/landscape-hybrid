@@ -1,28 +1,34 @@
 "use server";
-// import { createTodos, getTodos, searchTodo, updateTodo } from "@/app/db";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
-export async function actionCreateTodo(formData: FormData) {
+export async function actionCreateTodo(prevState: any, formData: FormData) {
   const todoText = formData.get("todoText") as string;
+  console.log("Create");
   try {
     await createTodos(todoText);
   } catch (err) {
     console.dir(err);
-    redirect(`?message=${err ?? "Unknown error"}`);
+    return { message: err ?? "Unknown Error" };
   }
-  revalidatePath("/"); // I should revalidate here.  No need to refresh
+  revalidatePath("/");
+  return { message: "" };
 }
 
-export async function actionUpdateTodo(curId: string, formData: FormData) {
+export async function actionUpdateTodo(
+  curId: string,
+  prevState: any,
+  formData: FormData
+) {
   const todoTextUpdated = formData.get("todoText") as string;
   try {
     await updateTodo(curId, todoTextUpdated);
   } catch (err) {
-    redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
+    return { message: err ?? "Unknown Error" };
+    // redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
   }
-  // revalidatePath("/");
-  redirect("/"); // Need to redirect because I need to clear the URL.
+  revalidatePath("/"); // I should revalidate here.  No need to refresh
+  return { message: "" };
 }
 
 export async function actionGetCurTodo(curId: string) {
@@ -31,7 +37,21 @@ export async function actionGetCurTodo(curId: string) {
   return todo ?? null;
 }
 
-// DB Functionality
+export async function actionDeleteTodo(
+  curId: string,
+  prevState: any,
+  formData: FormData
+) {
+  "use server";
+  console.log({ curId, prevState, formData });
+  await deleteTodo(curId);
+  revalidatePath("/");
+}
+
+// * DB Functionality
+// I need to include this with server-action function so that I don't get multiple copies of todos arrays.
+// This inclusion would not be necessary when I use real database.
+const LATENCY = 500; // ms
 
 let todos = [
   {
@@ -49,6 +69,7 @@ export async function getTodos() {
 }
 
 export async function createTodos(todoText: string) {
+  await sleep(LATENCY);
   if (!todoText) return Promise.reject("Empty Text");
   todos.push({
     id: genId(),
@@ -73,6 +94,10 @@ export async function updateTodo(id: string, todoTextUpdated: string) {
   } else {
     return Promise.reject("Invalid Todo ID");
   }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export type Todo = Awaited<ReturnType<typeof getTodos>>[0];

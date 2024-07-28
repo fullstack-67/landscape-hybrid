@@ -1,15 +1,19 @@
+"use client";
 // import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { FC } from "react";
 import { deleteTodo, type Todo } from "@/app/actionsAndDb";
+import { actionDeleteTodo } from "@/app/actionsAndDb";
+import useStore, { type ModeType } from "@/utils/store";
+import { useFormState, useFormStatus } from "react-dom";
 
 interface Props {
   todos: Todo[];
-  mode: "ADD" | "EDIT";
-  curId: string;
+  mode: ModeType;
 }
 
-export const TodoList: FC<Props> = ({ todos, mode, curId }) => {
+export const TodoList: FC<Props> = ({ todos, mode }) => {
+  let curId = "";
   return (
     <>
       {todos.map((todo, idx) => {
@@ -29,12 +33,7 @@ export const TodoList: FC<Props> = ({ todos, mode, curId }) => {
             <span style={{ fontWeight: fontStyle }} className={fontClass}>
               ✍️ {todo.todoText}
             </span>
-            {mode === "ADD" && (
-              <>
-                <ButtonDelete todo={todo} />
-                <ButtonUpdate todo={todo} />
-              </>
-            )}
+            <ButtonGroup todo={todo} />
           </article>
         );
       })}
@@ -42,37 +41,49 @@ export const TodoList: FC<Props> = ({ todos, mode, curId }) => {
   );
 };
 
-const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
-  async function actionDeleteTodo(formData: FormData) {
-    "use server";
-    // const curId = formData.get("curId") as string;
-    // await deleteTodo(curId);
+const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
+  const action = actionDeleteTodo.bind(null, todo.id);
+  const [state, actionForm] = useFormState(action as any, null);
+  const [mode] = useStore((state) => [state.mode]);
+  if (mode === "EDIT") return <></>;
 
-    // This is better than getting value from FormData
-    await deleteTodo(todo.id);
-
-    revalidatePath("/");
-    // redirect("/");
-  }
   return (
-    <form action={actionDeleteTodo}>
-      {/* No need to use this anymore once we can use prop. */}
-      {/* <input type="hidden" value={todo.id} name="curId" /> */}
-      <button type="submit" className="contrast" style={{ marginBottom: 0 }}>
-        🗑️
-      </button>
+    <form action={actionForm} style={{ display: "contents" }}>
+      <ButtonDelete />
+      <ButtonUpdate todo={todo} />
     </form>
   );
 };
 
-const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
+const ButtonDelete: FC = () => {
+  const { pending } = useFormStatus();
   return (
-    <form action="/">
-      <input type="hidden" value={todo.id} name="curId" />
-      <input type="hidden" value="EDIT" name="mode" />
-      <button type="submit" className="secondary" style={{ marginBottom: 0 }}>
-        🖊️
-      </button>
-    </form>
+    <button
+      type="submit"
+      className="contrast"
+      disabled={pending}
+      style={{ marginBottom: 0 }}
+    >
+      🗑️
+    </button>
+  );
+};
+
+const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
+  const [setMode, setCurTodo] = useStore((state) => [
+    state.setMode,
+    state.setCurTodo,
+  ]);
+  return (
+    <button
+      className="secondary"
+      style={{ marginBottom: 0 }}
+      onClick={() => {
+        setMode("EDIT");
+        setCurTodo(todo);
+      }}
+    >
+      🖊️
+    </button>
   );
 };
