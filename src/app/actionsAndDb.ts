@@ -1,11 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 export async function actionCreateTodo(prevState: any, formData: FormData) {
   const todoText = (formData?.get("todoText") ?? "") as string;
-  console.log("Create");
-  console.log({ todoText });
   try {
     await createTodos(todoText);
   } catch (err) {
@@ -19,35 +17,30 @@ export async function actionCreateTodo(prevState: any, formData: FormData) {
 export async function actionUpdateTodo(
   curId: string,
   prevState: any,
-  formData: FormData,
+  formData: FormData
 ) {
   const todoTextUpdated = (formData?.get("todoText") ?? "") as string;
-  console.log("Updated");
-  console.log({ todoTextUpdated, curId });
   try {
     await updateTodo(curId, todoTextUpdated);
   } catch (err) {
     return { message: err ?? "Unknown Error" };
-    // redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
   }
-  // revalidatePath("/"); // I should revalidate here.  No need to refresh
-  redirect("/");
+  revalidatePath("/"); // I should revalidate here.  No need to refresh
   return { message: "" };
 }
 
-export async function actionGetCurTodo(curId: string) {
-  if (!curId) return null;
-  const todo = await searchTodo(curId);
-  return todo ?? null;
-}
+// export async function actionGetCurTodo(curId: string) {
+//   if (!curId) return null;
+//   const todo = await searchTodo(curId);
+//   return todo ?? null;
+// }
 
 export async function actionDeleteTodo(
   curId: string,
   prevState: any,
-  formData: FormData,
+  formData: FormData
 ) {
   "use server";
-  console.log({ curId, prevState, formData });
   await deleteTodo(curId);
   revalidatePath("/");
 }
@@ -55,7 +48,7 @@ export async function actionDeleteTodo(
 // * DB Functionality
 // I need to include this with server-action function so that I don't get multiple copies of todos arrays.
 // This inclusion would not be necessary when I use real database.
-const LATENCY = 500; // ms
+const DB_LATENCY = 500; // ms
 
 let todos = [
   {
@@ -73,7 +66,7 @@ export async function getTodos() {
 }
 
 export async function createTodos(todoText: string) {
-  await sleep(LATENCY);
+  await sleep(DB_LATENCY);
   if (!todoText) return Promise.reject("Empty Text");
   todos.push({
     id: genId(),
@@ -91,6 +84,7 @@ export async function searchTodo(id: string) {
 }
 
 export async function updateTodo(id: string, todoTextUpdated: string) {
+  await sleep(DB_LATENCY);
   if (!todoTextUpdated) return Promise.reject("Empty Text");
   const idx = todos.findIndex((el) => el.id === id);
   if (idx > -1) {

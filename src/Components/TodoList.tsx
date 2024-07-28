@@ -1,10 +1,8 @@
 "use client";
-// import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { FC } from "react";
-import { deleteTodo, type Todo } from "@/app/actionsAndDb";
+import { type Todo } from "@/app/actionsAndDb";
 import { actionDeleteTodo } from "@/app/actionsAndDb";
-import useStore, { type ModeType } from "@/utils/store";
+import useStore from "@/utils/store";
 import { useFormState, useFormStatus } from "react-dom";
 
 interface Props {
@@ -12,12 +10,12 @@ interface Props {
 }
 
 export const TodoList: FC<Props> = ({ todos }) => {
-  let curId = "";
+  const [curTodo] = useStore((state) => [state.curTodo]);
   return (
     <>
       {todos.map((todo, idx) => {
-        const fontStyle = todo.id === curId ? "700" : "400";
-        const fontClass = todo.id === curId ? "pico-color-blue-400" : "";
+        const fontStyle = todo.id === curTodo.id ? "700" : "400";
+        const fontClass = todo.id === curTodo.id ? "pico-color-blue-400" : "";
 
         return (
           <article
@@ -43,8 +41,6 @@ export const TodoList: FC<Props> = ({ todos }) => {
 const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
   const action = actionDeleteTodo.bind(null, todo.id);
   const [state, actionForm] = useFormState(action as any, null);
-  const [mode] = useStore((state) => [state.mode]);
-  if (mode === "EDIT") return <></>;
 
   return (
     <form action={actionForm} style={{ display: "contents" }}>
@@ -56,11 +52,13 @@ const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
 
 const ButtonDelete: FC = () => {
   const { pending } = useFormStatus();
+  const [mode] = useStore((state) => [state.mode]);
+
   return (
     <button
       type="submit"
       className="contrast"
-      disabled={pending}
+      disabled={pending || mode === "EDIT"}
       style={{ marginBottom: 0 }}
     >
       🗑️
@@ -69,7 +67,8 @@ const ButtonDelete: FC = () => {
 };
 
 const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
-  const [setMode, setCurTodo] = useStore((state) => [
+  const [mode, setMode, setCurTodo] = useStore((state) => [
+    state.mode,
     state.setMode,
     state.setCurTodo,
   ]);
@@ -81,6 +80,7 @@ const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
         setMode("EDIT");
         setCurTodo(todo);
       }}
+      disabled={mode === "EDIT"}
     >
       🖊️
     </button>

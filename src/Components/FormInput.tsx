@@ -4,7 +4,7 @@ import { FC } from "react";
 import { actionUpdateTodo, actionCreateTodo } from "@/app/actionsAndDb";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRef, useEffect } from "react";
-import useStore, { ModeType, TodoType } from "@/utils/store";
+import useStore from "@/utils/store";
 
 export const FormInput: FC = () => {
   const [mode, curTodo] = useStore((state) => [state.mode, state.curTodo]);
@@ -15,6 +15,7 @@ export const FormInput: FC = () => {
     actionFormOption as any,
     initialState
   );
+
   return (
     <>
       <div
@@ -25,15 +26,10 @@ export const FormInput: FC = () => {
         }}
       >
         <form action={actionForm} style={{ display: "contents" }}>
-          <InputText curTodo={curTodo} />
-          <ButtonSubmit mode={mode} message={state?.message ?? ""} />
+          <InputText />
+          <ButtonSubmit message={state?.message ?? ""} />
+          <ButtonCancel />
         </form>
-
-        {mode === "EDIT" && (
-          <button type="button" className="contrast">
-            Cancel
-          </button>
-        )}
       </div>
 
       {<i className="pico-color-red-300">{state?.message ?? ""}</i>}
@@ -43,22 +39,25 @@ export const FormInput: FC = () => {
 
 // I need to use useFormStatus in the component in the form.
 // https://react.dev/reference/react-dom/hooks/useFormStatus
-const InputText: FC<{ curTodo: TodoType }> = ({ curTodo }) => {
+const InputText: FC = () => {
+  const [curTodo] = useStore((state) => [state.curTodo]);
   const { pending } = useFormStatus();
   const ref = useRef<HTMLInputElement>(null);
+
+  // Reset the input form after submission
   useEffect(() => {
     if (!pending && ref?.current) {
       ref.current.value = "";
     }
   }, [pending]);
 
+  // I need this to set the input when editing
   useEffect(() => {
-    if (curTodo?.todoText) {
-      if (ref?.current) {
-        ref.current.value = curTodo.todoText;
-      }
+    if (ref?.current) {
+      ref.current.value = curTodo.todoText;
     }
   }, [curTodo.todoText]);
+
   return (
     <input
       type="text"
@@ -70,12 +69,10 @@ const InputText: FC<{ curTodo: TodoType }> = ({ curTodo }) => {
   );
 };
 
-const ButtonSubmit: FC<{ mode: ModeType; message: string }> = ({
-  mode,
-  message,
-}) => {
+const ButtonSubmit: FC<{ message: string }> = ({ message }) => {
   const { pending } = useFormStatus();
-  const [setMode, setCurTodo] = useStore((state) => [
+  const [mode, setMode, setCurTodo] = useStore((state) => [
+    state.mode,
     state.setMode,
     state.setCurTodo,
   ]);
@@ -91,6 +88,31 @@ const ButtonSubmit: FC<{ mode: ModeType; message: string }> = ({
   return (
     <button type="submit" disabled={pending}>
       {mode === "ADD" ? "Submit" : "Update"}
+    </button>
+  );
+};
+
+const ButtonCancel: FC = () => {
+  const [mode, setMode, setCurTodo] = useStore((state) => [
+    state.mode,
+    state.setMode,
+    state.setCurTodo,
+  ]);
+  const { pending } = useFormStatus();
+
+  function handleCancel() {
+    setMode("ADD");
+    setCurTodo({ id: "", todoText: "" });
+  }
+  if (mode === "ADD") return <></>;
+  return (
+    <button
+      type="button"
+      className="contrast"
+      onClick={handleCancel}
+      disabled={pending}
+    >
+      Cancel
     </button>
   );
 };
