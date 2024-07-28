@@ -1,10 +1,11 @@
 "use server";
 import { revalidatePath } from "next/cache";
-// import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export async function actionCreateTodo(prevState: any, formData: FormData) {
-  const todoText = formData.get("todoText") as string;
+  const todoText = (formData?.get("todoText") ?? "") as string;
   console.log("Create");
+  console.log({ todoText });
   try {
     await createTodos(todoText);
   } catch (err) {
@@ -18,16 +19,19 @@ export async function actionCreateTodo(prevState: any, formData: FormData) {
 export async function actionUpdateTodo(
   curId: string,
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
-  const todoTextUpdated = formData.get("todoText") as string;
+  const todoTextUpdated = (formData?.get("todoText") ?? "") as string;
+  console.log("Updated");
+  console.log({ todoTextUpdated, curId });
   try {
     await updateTodo(curId, todoTextUpdated);
   } catch (err) {
     return { message: err ?? "Unknown Error" };
     // redirect(`/?message=${err ?? "Unknown error"}&curId=${curId}&mode=EDIT`);
   }
-  revalidatePath("/"); // I should revalidate here.  No need to refresh
+  // revalidatePath("/"); // I should revalidate here.  No need to refresh
+  redirect("/");
   return { message: "" };
 }
 
@@ -40,7 +44,7 @@ export async function actionGetCurTodo(curId: string) {
 export async function actionDeleteTodo(
   curId: string,
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
   "use server";
   console.log({ curId, prevState, formData });
