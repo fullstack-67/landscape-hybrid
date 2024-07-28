@@ -1,5 +1,4 @@
 "use client";
-
 import { FC } from "react";
 import { actionUpdateTodo, actionCreateTodo } from "@/app/actionsAndDb";
 import { useFormState, useFormStatus } from "react-dom";
@@ -31,7 +30,6 @@ export const FormInput: FC = () => {
           <ButtonCancel />
         </form>
       </div>
-
       {<i className="pico-color-red-300">{state?.message ?? ""}</i>}
     </>
   );
@@ -71,10 +69,11 @@ const InputText: FC = () => {
 
 const ButtonSubmit: FC<{ message: string }> = ({ message }) => {
   const { pending } = useFormStatus();
-  const [mode, setMode, setCurTodo] = useStore((state) => [
+  const [mode, setMode, setCurTodo, setPending] = useStore((state) => [
     state.mode,
     state.setMode,
     state.setCurTodo,
+    state.setPending,
   ]);
   useEffect(() => {
     // If there is error message, do not change the mode yet.
@@ -83,6 +82,9 @@ const ButtonSubmit: FC<{ message: string }> = ({ message }) => {
       setMode("ADD");
       setCurTodo({ id: "", todoText: "" });
     }
+
+    // Set pending status to global store
+    setPending(pending);
   }, [pending]);
 
   return (
