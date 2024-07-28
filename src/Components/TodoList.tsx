@@ -9,10 +9,9 @@ import { useFormState, useFormStatus } from "react-dom";
 
 interface Props {
   todos: Todo[];
-  mode: ModeType;
 }
 
-export const TodoList: FC<Props> = ({ todos, mode }) => {
+export const TodoList: FC<Props> = ({ todos }) => {
   let curId = "";
   return (
     <>

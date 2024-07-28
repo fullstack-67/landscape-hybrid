@@ -1,4 +1,4 @@
-"use client";.
+"use client";
 
 import { FC } from "react";
 import { actionUpdateTodo, actionCreateTodo } from "@/app/actionsAndDb";
@@ -10,14 +10,11 @@ export const FormInput: FC = () => {
   const [mode, curTodo] = useStore((state) => [state.mode, state.curTodo]);
   const actionFormOption =
     mode === "ADD" ? actionCreateTodo : actionUpdateTodo.bind(null, curTodo.id);
-  console.log({ mode, actionFormOption, curTodo });
   const initialState = { message: "" };
-  const [stateCreate, actionFormCreate] = useFormState<{ message: string }>(
+  const [state, actionForm] = useFormState<{ message: string }>(
     actionFormOption as any,
-    initialState,
-
+    initialState
   );
-  const [stateUpdate, actionFormUpdate] = useFormState<{message: string}>(actionUpdateTodo)
   return (
     <>
       <div
@@ -27,9 +24,9 @@ export const FormInput: FC = () => {
           alignItems: "end",
         }}
       >
-        <form action={actionFormCreate} style={{ display: "contents" }}>
+        <form action={actionForm} style={{ display: "contents" }}>
           <InputText curTodo={curTodo} />
-          <ButtonSubmit mode={mode} message={stateCreate?.message ?? ""} />
+          <ButtonSubmit mode={mode} message={state?.message ?? ""} />
         </form>
 
         {mode === "EDIT" && (
@@ -39,7 +36,7 @@ export const FormInput: FC = () => {
         )}
       </div>
 
-      {<i className="pico-color-red-300">{stateCreate?.message ?? ""}</i>}
+      {<i className="pico-color-red-300">{state?.message ?? ""}</i>}
     </>
   );
 };
