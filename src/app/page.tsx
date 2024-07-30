@@ -1,7 +1,7 @@
 // import Link from "next/link";
 import { getTodos } from "./db";
-import { FormInput } from "@/Components/FormInput";
-import { TodoList } from "@/Components/TodoList";
+import { FormInput } from "@/components/FormInput";
+import { TodoList } from "@/components/TodoList";
 
 interface PageProps {
   params: { slug: string };
