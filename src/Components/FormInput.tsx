@@ -38,16 +38,19 @@ export const FormInput: FC = () => {
 // I need to use useFormStatus in the component in the form.
 // https://react.dev/reference/react-dom/hooks/useFormStatus
 const InputText: FC = () => {
-  const [curTodo] = useStore((state) => [state.curTodo]);
-  const { pending } = useFormStatus();
+  const [curTodo, pending] = useStore((state) => [
+    state.curTodo,
+    state.pending,
+  ]);
+  const { pending: pendingLocal } = useFormStatus();
   const ref = useRef<HTMLInputElement>(null);
 
   // Reset the input form after submission
   useEffect(() => {
-    if (!pending && ref?.current) {
+    if (!pendingLocal && ref?.current) {
       ref.current.value = "";
     }
-  }, [pending]);
+  }, [pendingLocal]);
 
   // I need this to set the input when editing
   useEffect(() => {
@@ -68,24 +71,25 @@ const InputText: FC = () => {
 };
 
 const ButtonSubmit: FC<{ message: string }> = ({ message }) => {
-  const { pending } = useFormStatus();
-  const [mode, setMode, setCurTodo, setPending] = useStore((state) => [
+  const { pending: pendingLocal } = useFormStatus();
+  const [mode, setMode, setCurTodo, pending, setPending] = useStore((state) => [
     state.mode,
     state.setMode,
     state.setCurTodo,
+    state.pending,
     state.setPending,
   ]);
   useEffect(() => {
+    // Set pending status to global store
+    setPending(pendingLocal);
+
     // If there is error message, do not change the mode yet.
     if (message) return;
-    if (!pending && mode === "EDIT") {
+    if (!pendingLocal && mode === "EDIT") {
       setMode("ADD");
       setCurTodo({ id: "", todoText: "" });
     }
-
-    // Set pending status to global store
-    setPending(pending);
-  }, [pending]);
+  }, [pendingLocal]);
 
   return (
     <button type="submit" disabled={pending}>

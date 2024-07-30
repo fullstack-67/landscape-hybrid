@@ -1,5 +1,5 @@
 "use client";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { type Todo } from "@/app/actionsAndDb";
 import { actionDeleteTodo } from "@/app/actionsAndDb";
 import useStore from "@/utils/store";
@@ -52,7 +52,14 @@ const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
 };
 
 const ButtonDelete: FC = () => {
-  const { pending } = useFormStatus();
+  const { pending: pendingLocal } = useFormStatus();
+  const [pending, setPending] = useStore((state) => [
+    state.pending,
+    state.setPending,
+  ]);
+  useEffect(() => {
+    setPending(pendingLocal);
+  }, [pendingLocal]);
   return (
     <button
       type="submit"

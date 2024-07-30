@@ -62,6 +62,7 @@ function genId() {
 }
 
 export async function getTodos() {
+  await sleep(DB_LATENCY);
   return todos;
 }
 
@@ -75,10 +76,12 @@ export async function createTodos(todoText: string) {
 }
 
 export async function deleteTodo(id: string) {
+  await sleep(DB_LATENCY);
   todos = todos.filter((el) => el.id !== id);
 }
 
 export async function searchTodo(id: string) {
+  await sleep(DB_LATENCY);
   const todo = todos.find((el) => el.id === id);
   return todo;
 }

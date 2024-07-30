@@ -1,7 +1,7 @@
 import { getTodos } from "./actionsAndDb";
-import { FormInput } from "@/Components/FormInput";
-import { TodoList } from "@/Components/TodoList";
-import { Spinner } from "@/Components/Spinner";
+import { FormInput } from "@/components/FormInput";
+import { TodoList } from "@/components/TodoList";
+import { Spinner } from "@/components/Spinner";
 
 interface PageProps {
   params: { slug: string };
