@@ -52,7 +52,7 @@ const DB_LATENCY = 500; // ms
 
 let todos = [
   {
-    id: genId(),
+    id: "123456", // For some reasons, if I "genId" this ID there will be some inconsistencies when updating. Might have to do with caching.
     todoText: "My First Todo",
   },
 ];
