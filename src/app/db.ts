@@ -2,7 +2,7 @@ const DB_LATENCY = 500; // ms
 
 let todos = [
   {
-    id: genId(),
+    id: "123456", // Need to hardcode this instead of autogen due to caching (I guess).
     todoText: "My First Todo",
   },
 ];
