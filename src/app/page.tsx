@@ -14,7 +14,7 @@ export default async function Home({ params, searchParams }: PageProps) {
   return (
     <main className="container">
       <a href="/">
-        <h1>Todo</h1>
+        <h1>Todo (RSC + RCC)</h1>
       </a>
       {/* I set the new key so that the state is reset and I am able to switch between server action. See https://stackoverflow.com/a/77816853*/}
       <FormInput key={key} />
