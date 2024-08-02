@@ -18,7 +18,7 @@ export default async function Home({ params, searchParams }: PageProps) {
   return (
     <main className="container">
       <a href="/">
-        <h1>Todo</h1>
+        <h1>Todo (RSC Only)</h1>
       </a>
       <FormInput message={message} mode={mode} curId={curId} />
       <TodoList todos={todos} mode={mode} curId={curId} />
