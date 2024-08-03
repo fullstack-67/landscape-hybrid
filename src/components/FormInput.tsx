@@ -1,123 +1,163 @@
 "use client";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { actionUpdateTodo, actionCreateTodo } from "@/app/actionsAndDb";
-import { useFormState, useFormStatus } from "react-dom";
-import { useRef, useEffect } from "react";
 import useStore from "@/utils/store";
 
 export const FormInput: FC = () => {
-  const [mode, curTodo] = useStore((state) => [state.mode, state.curTodo]);
-  const actionFormOption =
-    mode === "ADD" ? actionCreateTodo : actionUpdateTodo.bind(null, curTodo.id);
-  const initialState = { message: "" };
-  const [state, actionForm] = useFormState<{ message: string }>(
-    actionFormOption as any,
-    initialState
-  );
-
+  const [mode] = useStore((state) => [state.mode]);
+  const [message, setMessage] = useState("");
   return (
     <>
       <div
         className="grid"
         style={{
           gridTemplateColumns: mode === "ADD" ? "4fr 1fr" : "4fr 1fr 1fr",
-          alignItems: "end",
+          alignItems: "start",
         }}
       >
-        <form action={actionForm} style={{ display: "contents" }}>
+        <div style={{ display: "contents" }}>
           <InputText />
-          <ButtonSubmit message={state?.message ?? ""} />
+          <ButtonSubmit setMessage={setMessage} />
+          <ButtonUpdate setMessage={setMessage} />
           <ButtonCancel />
-        </form>
+        </div>
       </div>
-      {<i className="pico-color-red-300">{state?.message ?? ""}</i>}
+      {<i className="pico-color-red-300">{message ?? ""}</i>}
     </>
   );
 };
 
-// I need to use useFormStatus in the component in the form.
-// https://react.dev/reference/react-dom/hooks/useFormStatus
-const InputText: FC = () => {
-  const [curTodo, pending] = useStore((state) => [
-    state.curTodo,
+interface PropsInputText {}
+const InputText: FC<PropsInputText> = () => {
+  const [pending, inputText, setInputText] = useStore((state) => [
     state.pending,
+    state.inputText,
+    state.setInputText,
   ]);
-  const { pending: pendingLocal } = useFormStatus();
-  const ref = useRef<HTMLInputElement>(null);
 
-  // Reset the input form after submission
-  useEffect(() => {
-    if (!pendingLocal && ref?.current) {
-      ref.current.value = "";
-    }
-  }, [pendingLocal]);
-
-  // I need this to set the input when editing
-  useEffect(() => {
-    if (ref?.current) {
-      ref.current.value = curTodo.todoText;
-    }
-  }, [curTodo.todoText]);
+  function handleChange(e: any) {
+    setInputText(e.target.value);
+  }
 
   return (
     <input
       type="text"
-      name="todoText"
-      placeholder=""
       disabled={pending}
-      ref={ref}
+      value={inputText}
+      onChange={handleChange}
     />
   );
 };
 
-const ButtonSubmit: FC<{ message: string }> = ({ message }) => {
-  const { pending: pendingLocal } = useFormStatus();
-  const [mode, setMode, setCurTodo, pending, setPending] = useStore((state) => [
+interface PropsButtonSubmit {
+  setMessage: (e: string) => void;
+}
+const ButtonSubmit: FC<PropsButtonSubmit> = ({ setMessage }) => {
+  const [mode, pending, setPending, inputText, setInputText] = useStore(
+    (state) => [
+      state.mode,
+      state.pending,
+      state.setPending,
+      state.inputText,
+      state.setInputText,
+    ]
+  );
+
+  const submit = actionCreateTodo.bind(null, inputText);
+  function handleClick() {
+    setPending(true);
+    submit()
+      .then((res) => {
+        setMessage(res.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setPending(false);
+        setInputText("");
+      });
+  }
+
+  if (mode !== "ADD") return <></>;
+  return (
+    <button disabled={pending} onClick={handleClick}>
+      Submit
+    </button>
+  );
+};
+
+interface PropsButtonUpdate {
+  setMessage: (e: string) => void;
+}
+const ButtonUpdate: FC<PropsButtonUpdate> = ({ setMessage }) => {
+  const [
+    mode,
+    setMode,
+    pending,
+    setPending,
+    inputText,
+    setInputText,
+    curTodo,
+    setCurTodo,
+  ] = useStore((state) => [
     state.mode,
     state.setMode,
-    state.setCurTodo,
     state.pending,
     state.setPending,
+    state.inputText,
+    state.setInputText,
+    state.curTodo,
+    state.setCurTodo,
   ]);
-  useEffect(() => {
-    // Set pending status to global store
-    setPending(pendingLocal);
 
-    // If there is error message, do not change the mode yet.
-    if (message) return;
-    if (!pendingLocal && mode === "EDIT") {
-      setMode("ADD");
-      setCurTodo({ id: "", todoText: "" });
-    }
-  }, [pendingLocal]);
+  const submit = actionUpdateTodo.bind(null, curTodo.id, inputText);
+  function handleClick() {
+    setPending(true);
+    submit()
+      .then((res) => {
+        setMessage(res.message);
+        if (res.message) return; // If there is err, stop here
+        setMode("ADD");
+        setCurTodo({ id: "", todoText: "" });
+        setInputText("");
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  }
 
+  if (mode !== "EDIT") return <></>;
   return (
-    <button type="submit" disabled={pending}>
-      {mode === "ADD" ? "Submit" : "Update"}
+    <button disabled={pending} onClick={handleClick}>
+      Update
     </button>
   );
 };
 
 const ButtonCancel: FC = () => {
-  const [mode, setMode, setCurTodo] = useStore((state) => [
-    state.mode,
-    state.setMode,
-    state.setCurTodo,
-  ]);
-  const { pending } = useFormStatus();
+  const [mode, pending, setMode, setCurTodo, setInputText] = useStore(
+    (state) => [
+      state.mode,
+      state.pending,
+      state.setMode,
+      state.setCurTodo,
+      state.setInputText,
+    ]
+  );
 
   function handleCancel() {
     setMode("ADD");
     setCurTodo({ id: "", todoText: "" });
+    setInputText("");
   }
-  if (mode === "ADD") return <></>;
+
+  if (mode !== "EDIT") return <></>;
   return (
-    <button
-      type="button"
-      className="contrast"
-      onClick={handleCancel}
-      disabled={pending}
-    >
+    <button className="contrast" onClick={handleCancel} disabled={pending}>
       Cancel
     </button>
   );

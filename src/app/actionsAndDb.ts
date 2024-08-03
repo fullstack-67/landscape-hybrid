@@ -2,45 +2,44 @@
 import { revalidatePath } from "next/cache";
 // import { redirect } from "next/navigation";
 
-export async function actionCreateTodo(prevState: any, formData: FormData) {
-  const todoText = (formData?.get("todoText") ?? "") as string;
+export async function actionCreateTodo(todoText: string) {
   try {
     await createTodos(todoText);
-  } catch (err) {
-    console.dir(err);
-    return { message: err ?? "Unknown Error" };
+  } catch (err: any) {
+    if (typeof err === "string") {
+      return { message: err };
+    } else {
+      return { message: "Unknown Error" };
+    }
   }
   revalidatePath("/");
   return { message: "" };
 }
 
-export async function actionUpdateTodo(
-  curId: string,
-  prevState: any,
-  formData: FormData
-) {
-  const todoTextUpdated = (formData?.get("todoText") ?? "") as string;
+export async function actionUpdateTodo(curId: string, todoTextUpdated: string) {
   try {
     await updateTodo(curId, todoTextUpdated);
   } catch (err) {
-    return { message: err ?? "Unknown Error" };
+    if (typeof err === "string") {
+      return { message: err };
+    } else {
+      return { message: "Unknown Error" };
+    }
   }
-  revalidatePath("/"); // I should revalidate here.  No need to refresh
+  revalidatePath("/");
   return { message: "" };
 }
-
-// export async function actionGetCurTodo(curId: string) {
-//   if (!curId) return null;
-//   const todo = await searchTodo(curId);
-//   return todo ?? null;
-// }
 
 export async function actionDeleteTodo(curId: string) {
   "use server";
   try {
     await deleteTodo(curId);
   } catch (err) {
-    return { message: err ?? "Unknown Error" };
+    if (typeof err === "string") {
+      return { message: err };
+    } else {
+      return { message: "Unknown Error" };
+    }
   }
   revalidatePath("/");
 }

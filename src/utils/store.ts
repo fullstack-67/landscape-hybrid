@@ -13,6 +13,8 @@ interface TodoStoreState {
   setCurTodo: (newCurTodo: TodoType) => void;
   pending: boolean;
   setPending: (newPending: boolean) => void;
+  inputText: string;
+  setInputText: (newInputText: string) => void;
 }
 
 const useStore = create<TodoStoreState>()((set) => ({
@@ -22,6 +24,9 @@ const useStore = create<TodoStoreState>()((set) => ({
   setCurTodo: (newCurTodo) => set((state) => ({ curTodo: newCurTodo })),
   pending: false,
   setPending: (newPending) => set((state) => ({ pending: newPending })),
+  inputText: "",
+  setInputText: (newInputText: string) =>
+    set((state) => ({ inputText: newInputText })),
 }));
 
 export default useStore;

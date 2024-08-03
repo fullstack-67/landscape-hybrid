@@ -74,12 +74,15 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
 };
 
 const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
-  const [mode, setMode, setCurTodo, pending] = useStore((state) => [
-    state.mode,
-    state.setMode,
-    state.setCurTodo,
-    state.pending,
-  ]);
+  const [mode, setMode, setCurTodo, pending, setInputText] = useStore(
+    (state) => [
+      state.mode,
+      state.setMode,
+      state.setCurTodo,
+      state.pending,
+      state.setInputText,
+    ]
+  );
   if (mode === "EDIT") return <></>;
   return (
     <div
@@ -88,6 +91,7 @@ const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
       onClick={() => {
         setMode("EDIT");
         setCurTodo(todo);
+        setInputText(todo.todoText);
       }}
     >
       🖊️

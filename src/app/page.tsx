@@ -10,14 +10,14 @@ interface PageProps {
 
 export default async function Home({ params, searchParams }: PageProps) {
   const todos = await getTodos();
-  const key = new Date().getTime().toString();
+  // const key = new Date().getTime().toString();
   return (
     <main className="container">
       <a href="/">
         <h1>Todo (RSC + RCC)</h1>
       </a>
       {/* I set the new key so that the state is reset and I am able to switch between server action. See https://stackoverflow.com/a/77816853*/}
-      <FormInput key={key} />
+      <FormInput />
       <TodoList todos={todos} />
       <Spinner />
     </main>
