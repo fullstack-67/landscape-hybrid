@@ -1,4 +1,4 @@
-// import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { FC } from "react";
 import { deleteTodo, type Todo } from "@/app/db";
@@ -52,11 +52,10 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
     await deleteTodo(todo.id);
 
     revalidatePath("/");
-    // redirect("/");
   }
   return (
     <form action={actionDeleteTodo}>
-      {/* No need to use this anymore once we can use prop. */}
+      {/* No need to use hidden field anymore once we can use prop. */}
       {/* <input type="hidden" value={todo.id} name="curId" /> */}
       <button type="submit" className="contrast" style={{ marginBottom: 0 }}>
         🗑️
@@ -66,10 +65,12 @@ const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
 };
 
 const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
+  async function actionTriggerUpdate() {
+    "use server";
+    redirect(`/?mode=EDIT&curId=${todo.id}`); // I cannot use revalidate path because the url will not change.
+  }
   return (
-    <form action="/">
-      <input type="hidden" value={todo.id} name="curId" />
-      <input type="hidden" value="EDIT" name="mode" />
+    <form action={actionTriggerUpdate}>
       <button type="submit" className="secondary" style={{ marginBottom: 0 }}>
         🖊️
       </button>

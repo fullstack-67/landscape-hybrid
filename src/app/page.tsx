@@ -15,6 +15,7 @@ export default async function Home({ params, searchParams }: PageProps) {
   let mode = (searchParams?.mode ?? "ADD") as "ADD" | "EDIT";
   if (mode !== "ADD" && mode !== "EDIT") mode = "ADD";
 
+  console.log({ mode, curId });
   return (
     <main className="container">
       <a href="/">

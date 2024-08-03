@@ -17,9 +17,10 @@ export const FormInput: FC<Props> = async ({ message, mode, curId }) => {
       await createTodos(todoText);
     } catch (err) {
       console.dir(err);
-      redirect(`?message=${err ?? "Unknown error"}`);
+      redirect(`/?message=${err ?? "Unknown error"}&curId=&mode=ADD`);
     }
-    revalidatePath("/"); // I should revalidate here.  No need to refresh
+    redirect("/?message=&curId=&mode=ADD"); // No refresh.
+    // revalidatePath("/")  // I need to change the URL (i.e. insert search params), therefore, I cannot use revalidatePath.
   }
 
   async function actionUpdateTodo(formData: FormData) {
