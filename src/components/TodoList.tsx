@@ -1,10 +1,9 @@
 "use client";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { type Todo } from "@/app/actionsAndDb";
 import { actionDeleteTodo } from "@/app/actionsAndDb";
 import useStore from "@/utils/store";
-import { useFormState, useFormStatus } from "react-dom";
-import { useTransition } from "react";
+import styles from "./spinner.module.css";
 
 interface Props {
   todos: Todo[];
@@ -31,7 +30,8 @@ export const TodoList: FC<Props> = ({ todos }) => {
             <span style={{ fontWeight: fontStyle }} className={fontClass}>
               ✍️ {todo.todoText}
             </span>
-            <ButtonGroup todo={todo} />
+            <ButtonDelete todo={todo} />
+            <ButtonUpdate todo={todo} />
           </article>
         );
       })}
@@ -39,59 +39,51 @@ export const TodoList: FC<Props> = ({ todos }) => {
   );
 };
 
-const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
-  const action = actionDeleteTodo.bind(null, todo.id);
-  const [state, actionForm] = useFormState(action as any, null);
-  const [mode] = useStore((state) => [state.mode]);
-  const [pendingT, startTransition] = useTransition();
-  if (mode === "EDIT") return <></>;
-  return (
-    <>
-      <button
-        onClick={() => {
-          startTransition(async () => await action(null, null));
-        }}
-      >
-        DD
-      </button>
-      <div>{pendingT ? "Yes" : "No"}</div>
-      <form action={actionForm} style={{ display: "contents" }}>
-        <ButtonDelete />
-        <ButtonUpdate todo={todo} />
-      </form>
-    </>
-  );
-};
-
-const ButtonDelete: FC = () => {
-  const { pending: pendingLocal } = useFormStatus();
-  const [pending, setPending] = useStore((state) => [
+const ButtonDelete: FC<{ todo: Todo }> = ({ todo }) => {
+  const submit = actionDeleteTodo.bind(null, todo.id);
+  const [mode, pending, setPending] = useStore((state) => [
+    state.mode,
     state.pending,
     state.setPending,
   ]);
-  useEffect(() => {
-    setPending(pendingLocal);
-  }, [pendingLocal]);
+
+  function handleClick() {
+    setPending(true);
+    submit()
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  }
+
+  if (mode === "EDIT") return <></>;
   return (
-    <button
-      type="submit"
-      className="contrast"
-      disabled={pending}
+    <div
+      className={styles["custom-btn"]}
+      onClick={handleClick}
       style={{ marginBottom: 0 }}
     >
       🗑️
-    </button>
+    </div>
   );
 };
 
 const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
-  const [setMode, setCurTodo] = useStore((state) => [
+  const [mode, setMode, setCurTodo, pending] = useStore((state) => [
+    state.mode,
     state.setMode,
     state.setCurTodo,
+    state.pending,
   ]);
+  if (mode === "EDIT") return <></>;
   return (
-    <button
-      className="secondary"
+    <div
+      className={styles["custom-btn"]}
       style={{ marginBottom: 0 }}
       onClick={() => {
         setMode("EDIT");
@@ -99,6 +91,6 @@ const ButtonUpdate: FC<{ todo: Todo }> = ({ todo }) => {
       }}
     >
       🖊️
-    </button>
+    </div>
   );
 };

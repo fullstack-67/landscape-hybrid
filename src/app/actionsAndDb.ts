@@ -35,13 +35,13 @@ export async function actionUpdateTodo(
 //   return todo ?? null;
 // }
 
-export async function actionDeleteTodo(
-  curId: string,
-  prevState: any,
-  formData: FormData
-) {
+export async function actionDeleteTodo(curId: string) {
   "use server";
-  await deleteTodo(curId);
+  try {
+    await deleteTodo(curId);
+  } catch (err) {
+    return { message: err ?? "Unknown Error" };
+  }
   revalidatePath("/");
 }
 
