@@ -4,6 +4,7 @@ import { type Todo } from "@/app/actionsAndDb";
 import { actionDeleteTodo } from "@/app/actionsAndDb";
 import useStore from "@/utils/store";
 import { useFormState, useFormStatus } from "react-dom";
+import { useTransition } from "react";
 
 interface Props {
   todos: Todo[];
@@ -42,12 +43,23 @@ const ButtonGroup: FC<{ todo: Todo }> = ({ todo }) => {
   const action = actionDeleteTodo.bind(null, todo.id);
   const [state, actionForm] = useFormState(action as any, null);
   const [mode] = useStore((state) => [state.mode]);
+  const [pendingT, startTransition] = useTransition();
   if (mode === "EDIT") return <></>;
   return (
-    <form action={actionForm} style={{ display: "contents" }}>
-      <ButtonDelete />
-      <ButtonUpdate todo={todo} />
-    </form>
+    <>
+      <button
+        onClick={() => {
+          startTransition(async () => await action(null, null));
+        }}
+      >
+        DD
+      </button>
+      <div>{pendingT ? "Yes" : "No"}</div>
+      <form action={actionForm} style={{ display: "contents" }}>
+        <ButtonDelete />
+        <ButtonUpdate todo={todo} />
+      </form>
+    </>
   );
 };
 
